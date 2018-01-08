@@ -1,0 +1,54 @@
+%{
+	#include<math.h>
+	int linha = 0;//conta numero de linhas
+	int cont = 0;//conta numero de tokens
+	int bin = 0;//conta numero de binarios
+	int f = 0;//conta numero de float
+	int dig = 0;//conta numero de numeros
+	int id = 0;//conta numero de variaveis
+%}
+DIGIT [0-9]
+BINARIO [Z0-1]
+L [a-zA-Z]
+
+%%
+{BINARIO}+ 			{bin++;} {cont++;}	{printf("Numero Binario: %s \n", yytext);}
+{L}({L}|{DIGIT})*   {id++;}  {cont++;}	{printf("Variavel: %s \n", yytext);}
+{DIGIT}+"."{DIGIT}* {f++;} 	 {cont++;}	{printf("Numero float: %s \n", yytext);}
+{DIGIT}+   			{dig++;} {cont++;}  {printf("Numero decimal positivo: %s \n", yytext);} 
+\n 	  {linha++;}
+[ \t] {linha++;}
+. { printf("Caractere Desconhecido!\nErro Lexico na linha:%d\n",linha); exit(1);}
+
+%%
+int yywrap() {
+				return 1;
+			 }
+main(argc, argv)
+
+int argc; char ** argv;
+{
+	++argv, --argc;
+	if(argc > 0) 
+		yyin = fopen(argv[0], "r");
+	else
+		yyin = stdin;
+	yylex();
+	printf("Foram encontrados %d tokens em %d linhas \n", cont, linha);
+	printf("Foram encontrados %d numeros binarios! \n", bin);
+	printf("Foram encontrados %d numeros float! \n", f);
+	printf("Foram encontrados %d numeros inteiros positivos! \n", dig);
+	printf("Foram encontrados %d identificadores(variaveis)! \n", id);
+
+}
+00
+11
+1
+0
+010101101000111000
+01010101010101010110
+01010111110000001101
+01010101111111111111
+
+
+flex -oanalex.c analex.l
